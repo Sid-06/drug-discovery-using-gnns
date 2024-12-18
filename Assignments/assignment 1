@@ -1,0 +1,64 @@
+import pandas as pd 
+import numpy as  np 
+import math
+class LinearRegression:
+    def __init__(self, learning_rate=0.01, iterations=1000):
+        self.learning_rate = learning_rate
+        self.iterations = iterations
+        self.weights = None
+        self.bias = None
+    
+    def mean_squared_error(self, y_true, y_pred):
+       return np.mean((y_true - y_pred) ** 2)
+    
+    def fit(self, X, y):
+    
+        n_samples, n_features = X.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+        for _ in range(self.iterations):
+            
+            y_pred = np.dot(X, self.weights) + self.bias
+            
+            
+            dw = (1/n_samples) * np.dot(X.T, (y_pred - y))
+            db = (1/n_samples) * np.sum(y_pred - y)
+            
+            
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
+        
+        return self
+    
+    def predict(self, X):
+       
+        return np.dot(X, self.weights) + self.bias
+
+def load(file_path):
+    df = pd.read_csv(file_path)
+    df.dropna(inplace=True)
+    df['Extracurricular Activities'] = df['Extracurricular Activities'].map({'Yes': 1, 'No': 0})
+
+
+    X = df[['Hours Studied', 'Previous Scores', 'Extracurricular Activities', 'Sleep Hours', 'Sample Question Papers Practiced']].values
+    y = df['Performance Index'].values
+   
+
+    return X,y
+
+def main():
+    X, y = load('https://raw.githubusercontent.com/harshul997/Molecular-Drug-Discovery-using-Graphical-Neutral-Networks/refs/heads/main/Week1/Assignment1/Student_Performance.csv')
+    
+    lr_model = LinearRegression(learning_rate=0.01, iterations=1000)
+    X_train = X[:8000]
+    y_train = y[:8000]
+    X_test = X[8000:]
+    y_test = y[8000:]
+    lr_model.fit(X_train, y_train)
+    
+    y_pred_lr = lr_model.predict(X_test)
+    mse = lr_model.mean_squared_error(y_test, y_pred_lr)
+    rmse = math.sqrt(mse)
+    print(f"Mean Squared Error: {rmse}")
+if __name__ == "__main__":
+    main()
