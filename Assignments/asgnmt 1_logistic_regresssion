@@ -1,0 +1,66 @@
+import pandas as pd
+import numpy as np
+
+class LogisticRegression:
+    def __init__(self, learning_rate=0.01, iterations=1000):
+        self.learning_rate = learning_rate
+        self.iterations = iterations
+        self.weights = None
+        self.bias = None
+
+    def load(file_path):
+        df = pd.read_csv(file_path)
+        df.dropna(inplace=True)
+        x = df.drop('TenYearCHD', axis=1).values
+        y = df['TenYearCHD'].values
+        return x, y
+
+    
+    def sigmoid(z):
+        return 1 / (1 + np.exp(-z))
+
+    def fit(self, x, y):
+        n_samples, n_features = x.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+
+        for _ in range(self.iterations):
+            linear_model = np.dot(x, self.weights) + self.bias
+            y_pred = self.sigmoid(linear_model)
+
+            dw = (1 / n_samples) * np.dot(x.T, (y_pred - y))
+            db = (1 / n_samples) * np.sum(y_pred - y)
+
+            self.weights -= self.learning_rate * dw
+            self.bias -= self.learning_rate * db
+
+    def predict_probability(self, x):
+        linear_model = np.dot(x, self.weights) + self.bias
+        return self.sigmoid(linear_model)
+
+    def predict(self, x, threshold=0.5):
+        probabilities = self.predict_probability(x)
+        return (probabilities >= threshold).astype(int)
+
+   
+    def accuracy(y_true, y_pred):
+        return np.mean(y_true == y_pred) * 100
+
+def main():
+    log_reg = LogisticRegression(learning_rate=0.01, iterations=1000)
+
+    file_path = '/mnt/data/framingham.csv'  
+    x, y = log_reg.load(file_path)
+    n_samples = len(y)
+    n_samples_train = int(0.8 * n_samples)
+    x_train, x_test = x[:n_samples_train], x[n_samples_train:]
+    y_train, y_test = y[:n_samples_train], y[n_samples_train:]
+
+    log_reg.fit(x_train, y_train)
+
+    y_pred = log_reg.predict(x_test)
+    acc = log_reg.accuracy(y_test, y_pred)
+    print(f"Accuracy: {acc:.2f}%")
+
+if __name__ == "__main__":
+    main()
