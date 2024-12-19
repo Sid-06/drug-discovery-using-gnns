@@ -49,7 +49,7 @@ class LogisticRegression:
 def main():
     log_reg = LogisticRegression(learning_rate=0.01, iterations=1000)
 
-    file_path = '/mnt/data/framingham.csv'  
+    file_path = 'Assignments/framingham.csv'  
     x, y = log_reg.load(file_path)
     n_samples = len(y)
     n_samples_train = int(0.8 * n_samples)
