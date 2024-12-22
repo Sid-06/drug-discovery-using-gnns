@@ -2,13 +2,13 @@ import pandas as pd
 import numpy as np
 
 class LogisticRegression:
-    def __init__(self, learning_rate=0.01, iterations=1000):
+    def __init__(self, learning_rate=0.1, iterations=1000):
         self.learning_rate = learning_rate
         self.iterations = iterations
         self.weights = None
         self.bias = None
 
-    def load(file_path):
+    def load(self,    file_path):
         df = pd.read_csv(file_path)
         df.dropna(inplace=True)
         x = df.drop('TenYearCHD', axis=1).values
@@ -43,7 +43,7 @@ class LogisticRegression:
         return (probabilities >= threshold).astype(int)
 
    
-    def accuracy(y_true, y_pred):
+    def accuracy(self,y_true, y_pred):
         return np.mean(y_true == y_pred) * 100
 
 def main():
@@ -51,6 +51,9 @@ def main():
 
     file_path = 'Assignments/framingham.csv'  
     x, y = log_reg.load(file_path)
+    x_mean = np.mean(x,axis=0)
+    x_std  = np.std(x,axis=0)
+    x = (x-x_mean)/x_std
     n_samples = len(y)
     n_samples_train = int(0.8 * n_samples)
     x_train, x_test = x[:n_samples_train], x[n_samples_train:]
